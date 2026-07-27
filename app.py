@@ -26,10 +26,12 @@ with col1:
     temp = st.number_input("Température [K]", value=573.15)
     time = st.number_input("Temps de séjour [min]", value=30.0)
     biomass_pct = st.number_input("Biomasse %", value=10.0)
+    cat_qty = st.number_input("Quantité_Catalyseur", value=0.0)
+
+    st.subheader("⚗️ Solvant")
     water = st.number_input("Water_%", value=100.0)
     ethanol = st.number_input("Ethanol_%", value=0.0)
     methanol = st.number_input("Methanol_%", value=0.0)
-    cat_qty = st.number_input("Quantité_Catalyseur", value=0.0)
 
 with col2:
     st.subheader("🧪 Propriétés de la Biomasse")
