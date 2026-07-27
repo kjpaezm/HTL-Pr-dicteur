@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -5,13 +6,15 @@ import joblib
 
 st.set_page_config(page_title="Biomass HTL Predictor", layout="wide")
 
-st.title("🔬 Biomass Hydrothermal Liquefaction Conversion Predictor")
+st.title("🔬 Biomass HTL Conversion Predictor")
 st.write("Entrez les conditions opératoires et la composition biochimique pour prédire les rendements et propriétés.")
 
 # Chargement du dictionnaire de modèles
 @st.cache_resource
 def load_models():
-    return joblib.load("models_dict.pkl")
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(BASE_DIR, "models_dict.pkl")
+    return joblib.load(model_path)
 
 models_dict = load_models()
 
