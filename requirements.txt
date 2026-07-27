@@ -1,9 +1,6 @@
-gradio
+streamlit
 pandas
 numpy
 scikit-learn
 joblib
-optuna
-optunahub
-shap
-xgboost
+openpyxl
