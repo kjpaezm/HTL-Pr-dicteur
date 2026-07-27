@@ -88,6 +88,8 @@ def load_models():
 
 models_dict = load_models()
 
+models_loaded = models_dict is not None
+
 # Tête de l'application
 
 head_col1, head_col2 = st.columns([1, 4])
