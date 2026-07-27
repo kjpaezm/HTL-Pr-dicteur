@@ -1,5 +1,9 @@
 gradio
 pandas
 numpy
-scikit-learn
+sklearn
 joblib
+optuna
+optunahub
+shap
+xgboost
