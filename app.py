@@ -179,8 +179,8 @@ with col_outputs:
             water, ethanol, methanol, cat_qty, protein, lipid, carbs,
             lignin, hemicellulose, cellulose
         ]], columns=[
-            'Température [K]', 'Temps de séjour [min]', 'Biomasse %', 'H/C_feed', 'N', 'S', 
-            'O/C_feed', 'Cendres [wt%]', 'PCS [MJ/kg]', 'Water_%', 'Ethanol_%', 'Methanol_%', 
+            'Température (K)', 'Temps de séjour (min)', 'Biomasse %', 'H/C_feed', 'N', 'S', 
+            'O/C_feed', 'Cendres (wt%)', 'PCS (MJ/kg)', 'Water_%', 'Ethanol_%', 'Methanol_%', 
             'Quantité_Catalyseur', 'Protéines', 'Lipides', 'Glucides', 'Lignine', 'Hemicellulose', 'Cellulose'
         ])
 
