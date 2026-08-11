@@ -18,63 +18,83 @@ st.markdown("""
 <style>
     /* Theme global et variables */
     :root {
-        --s3d-primary: #059669;
-        --s3d-secondary: #047857;
+        --s3d-green: #059669;
+        --s3d-green-hover: #047857;
+        --s3d-green-light: #ECFDF5;
+        --bg-app: #F8FAFC;
         --bg-card: #FFFFFF;
         --border-color: #E2E8F0;
-        --text-color: #0F172A;
+        --text-dark: #0F172A;
+        --text-muted: #475569;
     }
     
     .stApp {
-        background-color: #F8FAFC;
-        color: var(--text-color);
+        background-color: var(--bg-app);
+        color: var(--text-dark);
     }
 
     /* Cartes de résultats */
     .metric-card {
         background-color: var(--bg-card);
         border: 1px solid var(--border-color);
-        border-radius: 10px;
-        padding: 18px;
+        border-radius: 12px;
+        padding: 20px;
         text-align: center;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         margin-bottom: 15px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.12);
+        border-color: var(--s3d-green);
     }
     .metric-card h4 {
         color: #A0AEC0;
-        font-size: 0.9rem;
-        margin-bottom: 8px;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        font-weight: 600;
     }
     .metric-card .value {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #00B4DB;
+        color: var(--s3d-green);
     }
 
     /* Ajustement des conteneurs d'entrées */
     .stNumberInput input {
         background-color: #FFFFFF !important;
-        color: #FFFFFF !important;
-        border-radius: 6px;
+        color: var(--text-dark) !important;
+        border-radius: 8px;
+        border: 1px solid #CBD5E1 !important;
+    }
+    
+    /* Personnalisation des Onglets (Tabs) */
+    .stTabs [aria-selected="true"] {
+        color: var(--s3d-green) !important;
+        border-bottom-color: var(--s3d-green) !important;
+        font-weight: bold;
     }
     
     /* Bouton principal */
     div.stButton > button:first-child {
-        background: linear-gradient(90deg, #0083B0 0%, #00B4DB 100%);
-        color: white;
+        background-color: var(--s3d-green) !important;
+        color: white !important;
         font-weight: bold;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         border: none;
         padding: 12px 24px;
         border-radius: 8px;
         width: 100%;
-        transition: all 0.3s ease;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 6px rgba(5, 150, 105, 0.2);
     }
     div.stButton > button:first-child:hover {
+       background-color: var(--s3d-green-hover) !important;
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0, 180, 219, 0.4);
+        box-shadow: 0 6px 15px rgba(5, 150, 105, 0.35);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -206,42 +226,82 @@ with col_outputs:
                 </div>
                 """, unsafe_allow_html=True)
 
-        # Visualisation interactive Plotly des prédictions (ex: Diagramme à barres si plusieurs sorties)
-        if len(predictions) > 1:
-            st.subheader("Comparatif des Rendements / Propriétés")
-            df_preds = pd.DataFrame(list(predictions.items()), columns=['Cible', 'Valeur'])
-            
-            fig = px.bar(
-                df_preds, 
-                x='Cible', 
-                y='Valeur', 
-                color='Cible',
-                text_auto='.2f',
-                color_discrete_sequence=px.colors.qualitative.Dark24
-            )
-            fig.update_layout(
-                template="plotly_dark",
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)',
-                showlegend=False,
-                margin=dict(l=20, r=20, t=30, b=20),
-                height=280
-            )
-            st.plotly_chart(fig, use_container_width=True)
-
-    else:
-        st.info("👈 Ajustez vos paramètres à gauche puis cliquez sur **Calculer les Prédictions**.")
-        
-        # Affichage de l'image explicative des produits si disponible
-        products_img_path = "images/Products.png"
-        if os.path.exists(products_img_path):
-            st.image(products_img_path, caption="Schéma des produits HTL", use_container_width=True)
-
-
-st.markdown("---")
-st.markdown(
-    "<div style='text-align: center; color: #718096; font-size: 0.85rem;'>"
-    "© s3d ingénierie — Outil d'optimisation Machine Learning HTL"
-    "</div>", 
-    unsafe_allow_html=True
-)
+      # -------------------------------------------------------------
+      # 2. SEPARATE TARGETS INTO RENDEMENTS AND PROPRIÉTÉS
+      # -------------------------------------------------------------
+      yield_keywords = ['rendement', 'yield', 'biocrude', 'bio-oil', 'char', 'gas', 'aqueous', '%']
+    
+      rendements_dict = {}
+      properties_dict = {}
+    
+      for target, val in predictions.items():
+        # If target name contains any yield keyword, put in Rendements
+        if any(kw in target.lower() for kw in yield_keywords):
+          rendements_dict[target] = val
+        else:
+          properties_dict[target] = val
+    
+      st.markdown('---')
+  
+      # -------------------------------------------------------------
+      # 3. DISPLAY TWO SEPARATE PLOTS (USING SUB-TABS)
+      # -------------------------------------------------------------
+      tab_plot1, tab_plot2 = st.tabs(
+          ['📈 Rendements (%)', '🧪 Propriétés & Composition']
+      )
+    
+      # --- CHART 1: RENDEMENTS ---
+      with tab_plot1:
+        if rendements_dict:
+          df_rend = pd.DataFrame(
+              list(rendements_dict.items()), columns=['Produit', 'Rendement (%)']
+          )
+    
+          fig_rend = px.bar(
+              df_rend,
+              x='Produit',
+              y='Rendement (%)',
+              color='Produit',
+              text_auto='.2f',
+              color_discrete_sequence=['#10B981', '#0284C7', '#64748B', '#B45309'],
+              title='Rendement des phases HTL',
+          )
+          fig_rend.update_layout(
+              template='plotly_white',
+              paper_bgcolor='rgba(0,0,0,0)',
+              plot_bgcolor='rgba(0,0,0,0)',
+              showlegend=False,
+              height=280,
+              margin=dict(l=10, r=10, t=40, b=10),
+          )
+          st.plotly_chart(fig_rend, use_container_width=True)
+        else:
+          st.info('Aucun paramètre de rendement détecté.')
+    
+      # --- CHART 2: PROPRIÉTÉS ---
+      with tab_plot2:
+        if properties_dict:
+          df_prop = pd.DataFrame(
+              list(properties_dict.items()), columns=['Propriété', 'Valeur']
+          )
+    
+          fig_prop = px.bar(
+              df_prop,
+              x='Propriété',
+              y='Valeur',
+              color='Propriété',
+              text_auto='.2f',
+              color_discrete_sequence=['#059669', '#0D9488', '#3B82F6', '#8B5CF6'],
+              title='Propriétés physiques & chimques prédites',
+          )
+          fig_prop.update_layout(
+              template='plotly_white',
+              paper_bgcolor='rgba(0,0,0,0)',
+              plot_bgcolor='rgba(0,0,0,0)',
+              showlegend=False,
+              height=280,
+              margin=dict(l=10, r=10, t=40, b=10),
+          )
+          st.plotly_chart(fig_prop, use_container_width=True)
+        else:
+          st.info('Aucune propriété physique/chimique détectée.')
