@@ -1,4 +1,4 @@
-import os
+mport os
 import joblib
 import numpy as np
 import pandas as pd
@@ -284,21 +284,21 @@ with col_outputs:
 
         st.markdown("---")
 
-       rendements_dict = {}
+        rendements_dict = {}
         properties_dict = {}
 
         # Patrón para detectar PCS, HHV o elementos químicos C, H, N, S, O aislados
         prop_pattern = (
-            r"\b(pcs|hhv|c|h|n|s|o|carbon|hydrogen|nitrogen|oxygen|sulfur)\b"
+            r"\b(pcs|c|h|n|s|o|carbon|hydrogen|nitrogen|oxygen|sulfur)\b"
         )
 
         for target, val in predictions.items():
             t_lower = target.lower()
 
-            # Si es rendimiento de alguna fase (contiene 'rendement' o 'yield'), va a Rendements
+            # Rendements
             if "rendement" in t_lower or "yield" in t_lower:
                 rendements_dict[target] = val
-            # Si contiene PCS/HHV o elementos (C, H, N, S, O), va a Propriétés
+            # Propriétés
             elif (
                 "pcs" in t_lower
                 or "hhv" in t_lower
