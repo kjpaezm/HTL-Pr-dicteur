@@ -230,78 +230,73 @@ with col_outputs:
       # 2. SEPARATE TARGETS INTO RENDEMENTS AND PROPRIÉTÉS
       # -------------------------------------------------------------
       yield_keywords = ['rendement', 'yield', 'biocrude', 'bio-oil', 'char', 'gas', 'aqueous', '%']
-    
-      rendements_dict = {}
-      properties_dict = {}
-    
-      for target, val in predictions.items():
-        # If target name contains any yield keyword, put in Rendements
-        if any(kw in target.lower() for kw in yield_keywords):
-          rendements_dict[target] = val
-        else:
-          properties_dict[target] = val
-    
-      st.markdown('---')
+        rendements_dict = {}
+        properties_dict = {}
+
+        for target, val in predictions.items():
+            if any(kw in target.lower() for kw in yield_keywords):
+                rendements_dict[target] = val
+            else:
+                properties_dict[target] = val
+
+        # Affichage en 2 onglets de graphiques
+        tab_plot1, tab_plot2 = st.tabs(["📈 Rendements (%)", "🧪 Propriétés & Composition"])
   
       # -------------------------------------------------------------
       # 3. DISPLAY TWO SEPARATE PLOTS (USING SUB-TABS)
       # -------------------------------------------------------------
-      tab_plot1, tab_plot2 = st.tabs(
-          ['📈 Rendements (%)', '🧪 Propriétés & Composition']
-      )
-    
-      # --- CHART 1: RENDEMENTS ---
       with tab_plot1:
-        if rendements_dict:
-          df_rend = pd.DataFrame(
-              list(rendements_dict.items()), columns=['Produit', 'Rendement (%)']
-          )
-    
-          fig_rend = px.bar(
-              df_rend,
-              x='Produit',
-              y='Rendement (%)',
-              color='Produit',
-              text_auto='.2f',
-              color_discrete_sequence=['#10B981', '#0284C7', '#64748B', '#B45309'],
-              title='Rendement des phases HTL',
-          )
-          fig_rend.update_layout(
-              template='plotly_white',
-              paper_bgcolor='rgba(0,0,0,0)',
-              plot_bgcolor='rgba(0,0,0,0)',
-              showlegend=False,
-              height=280,
-              margin=dict(l=10, r=10, t=40, b=10),
-          )
-          st.plotly_chart(fig_rend, use_container_width=True)
-        else:
-          st.info('Aucun paramètre de rendement détecté.')
-    
-      # --- CHART 2: PROPRIÉTÉS ---
-      with tab_plot2:
-        if properties_dict:
-          df_prop = pd.DataFrame(
-              list(properties_dict.items()), columns=['Propriété', 'Valeur']
-          )
-    
-          fig_prop = px.bar(
-              df_prop,
-              x='Propriété',
-              y='Valeur',
-              color='Propriété',
-              text_auto='.2f',
-              color_discrete_sequence=['#059669', '#0D9488', '#3B82F6', '#8B5CF6'],
-              title='Propriétés physiques & chimques prédites',
-          )
-          fig_prop.update_layout(
-              template='plotly_white',
-              paper_bgcolor='rgba(0,0,0,0)',
-              plot_bgcolor='rgba(0,0,0,0)',
-              showlegend=False,
-              height=280,
-              margin=dict(l=10, r=10, t=40, b=10),
-          )
-          st.plotly_chart(fig_prop, use_container_width=True)
-        else:
-          st.info('Aucune propriété physique/chimique détectée.')
+            if rendements_dict:
+                df_rend = pd.DataFrame(list(rendements_dict.items()), columns=['Produit', 'Rendement (%)'])
+                fig_rend = px.bar(
+                    df_rend,
+                    x='Produit',
+                    y='Rendement (%)',
+                    color='Produit',
+                    text_auto='.2f',
+                    color_discrete_sequence=['#10B981', '#0284C7', '#64748B', '#B45309'],
+                    title="Rendement des phases HTL"
+                )
+                fig_rend.update_layout(
+                    template="plotly_white",
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    showlegend=False,
+                    height=280,
+                    margin=dict(l=10, r=10, t=40, b=10)
+                )
+                st.plotly_chart(fig_rend, use_container_width=True)
+            else:
+                st.info("Aucun paramètre de rendement détecté.")
+
+        # CHART 2: PROPRIÉTÉS
+        with tab_plot2:
+            if properties_dict:
+                df_prop = pd.DataFrame(list(properties_dict.items()), columns=['Propriété', 'Valeur'])
+                fig_prop = px.bar(
+                    df_prop,
+                    x='Propriété',
+                    y='Valeur',
+                    color='Propriété',
+                    text_auto='.2f',
+                    color_discrete_sequence=['#059669', '#0D9488', '#3B82F6', '#8B5CF6'],
+                    title="Propriétés physiques & chimiques prédites"
+                )
+                fig_prop.update_layout(
+                    template="plotly_white",
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    showlegend=False,
+                    height=280,
+                    margin=dict(l=10, r=10, t=40, b=10)
+                )
+                st.plotly_chart(fig_prop, use_container_width=True)
+            else:
+                st.info("Aucune propriété physique/chimique détectée.")
+
+    else:
+        st.info("👈 Ajustez vos paramètres à gauche puis cliquez sur **CALCULER LES PRÉDICTIONS**.")
+        
+        products_img_path = "images/Products.png"
+        if os.path.exists(products_img_path):
+            st.image(products_img_path, caption="Schéma des produits HTL", use_container_width=True)
