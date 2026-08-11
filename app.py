@@ -18,15 +18,15 @@ st.markdown("""
 <style>
     /* Theme global et variables */
     :root {
-        --s3d-primary: #0083B0;
-        --s3d-secondary: #00B4DB;
-        --bg-card: #1E2530;
-        --border-color: #2E3846;
-        --text-color: #F0F2F5;
+        --s3d-primary: #059669;
+        --s3d-secondary: #047857;
+        --bg-card: #FFFFFF;
+        --border-color: #E2E8F0;
+        --text-color: #0F172A;
     }
     
     .stApp {
-        background-color: #636B2F;
+        background-color: #F8FAFC;
         color: var(--text-color);
     }
 
@@ -55,7 +55,7 @@ st.markdown("""
 
     /* Ajustement des conteneurs d'entrées */
     .stNumberInput input {
-        background-color: #1A202C !important;
+        background-color: #FFFFFF !important;
         color: #FFFFFF !important;
         border-radius: 6px;
     }
