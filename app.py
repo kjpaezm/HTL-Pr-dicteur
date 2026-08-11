@@ -284,32 +284,39 @@ with col_outputs:
 
         st.markdown("---")
 
-        # 2. Séparation des cibles (Rendements vs Propriétés)
-        yield_keywords = [
-            "rendement",
-            "yield",
-            "biocrude",
-            "bio-oil",
-            "char",
-            "gas",
-            "aqueous",
-            "%",
-        ]
-        rendements_dict = {}
+       rendements_dict = {}
         properties_dict = {}
 
-        for target, val in predictions.items():
-            if any(kw in target.lower() for kw in yield_keywords):
-                rendements_dict[target] = val
-            else:
-                properties_dict[target] = val
-
-        # 3. Affichage en 2 onglets de graphiques
-        tab_plot1, tab_plot2 = st.tabs(
-            ["📈 Rendements (%)", "🧪 Propriétés & Composition"]
+        # Patrón para detectar PCS, HHV o elementos químicos C, H, N, S, O aislados
+        prop_pattern = (
+            r"\b(pcs|hhv|c|h|n|s|o|carbon|hydrogen|nitrogen|oxygen|sulfur)\b"
         )
 
-        # CHART 1: RENDEMENTS
+        for target, val in predictions.items():
+            t_lower = target.lower()
+
+            # Si es rendimiento de alguna fase (contiene 'rendement' o 'yield'), va a Rendements
+            if "rendement" in t_lower or "yield" in t_lower:
+                rendements_dict[target] = val
+            # Si contiene PCS/HHV o elementos (C, H, N, S, O), va a Propriétés
+            elif (
+                "pcs" in t_lower
+                or "hhv" in t_lower
+                or re.search(prop_pattern, t_lower)
+            ):
+                properties_dict[target] = val
+            # Por defecto
+            else:
+                rendements_dict[target] = val
+
+        # -------------------------------------------------------------
+        # DESPLIEGUE EN 2 ONGLETS / GRÁFICOS SEPARADOS
+        # -------------------------------------------------------------
+        tab_plot1, tab_plot2 = st.tabs(
+            ["📈 Rendements (%)", "🧪 Biocrude & PCS (C, H, N, S, O, PCS)"]
+        )
+
+        # PLOT 1: RENDEMENTS
         with tab_plot1:
             if rendements_dict:
                 df_rend = pd.DataFrame(
@@ -328,21 +335,21 @@ with col_outputs:
                         "#64748B",
                         "#B45309",
                     ],
-                    title="Rendement des phases HTL",
+                    title="Rendement des phases HTL (%)",
                 )
                 fig_rend.update_layout(
                     template="plotly_white",
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     showlegend=False,
-                    height=280,
+                    height=300,
                     margin=dict(l=10, r=10, t=40, b=10),
                 )
                 st.plotly_chart(fig_rend, use_container_width=True)
             else:
-                st.info("Aucun paramètre de rendement détecté.")
+                st.info("Aucun rendement détecté.")
 
-        # CHART 2: PROPRIÉTÉS
+        # PLOT 2: PROPRIÉTÉS (BIOCRUDE C, H, N, S, O + PCS)
         with tab_plot2:
             if properties_dict:
                 df_prop = pd.DataFrame(
@@ -360,20 +367,22 @@ with col_outputs:
                         "#0D9488",
                         "#3B82F6",
                         "#8B5CF6",
+                        "#D97706",
+                        "#EC4899",
                     ],
-                    title="Propriétés physiques & chimiques prédites",
+                    title="Composés du Biocrude (C, H, N, S, O) et PCS",
                 )
                 fig_prop.update_layout(
                     template="plotly_white",
                     paper_bgcolor="rgba(0,0,0,0)",
                     plot_bgcolor="rgba(0,0,0,0)",
                     showlegend=False,
-                    height=280,
+                    height=300,
                     margin=dict(l=10, r=10, t=40, b=10),
                 )
                 st.plotly_chart(fig_prop, use_container_width=True)
             else:
-                st.info("Aucune propriété physique/chimique détectée.")
+                st.info("Aucune propriété détectée.")
 
     else:
         st.info(
